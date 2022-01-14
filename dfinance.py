@@ -148,40 +148,43 @@ class Portfolio:
         Returns:
             dataframe: summary of all transactions
         """
-        try:
-            df = self.__sum_ledger()
+        df = self.__sum_ledger()
 
-            # drop Totals row - we will recalculate this later
-            df = df[df['Ticker'] != 'Totals']
+        # drop Totals row - we will recalculate this later
+        df = df[df['Ticker'] != 'Totals']
 
-            # Current price of tickers
-            df['Current Price'] = self.__get_current_prices(list(df['Ticker'].values))
+        # Current price of tickers
+        df['Current Price'] = self.__get_current_prices(list(df['Ticker'].values))
 
-            # Current value of our shares
-            df['Current Value of Shares'] = df['Sum Shares'] * df['Current Price']
+        # Current value of our shares
+        df['Current Value of Shares'] = df['Sum Shares'] * df['Current Price']
 
-            # Find average price per share for all buys
-            # Calculate the cost to acquire our shares
-            price_per_share_buy_avg = self.__sum_buys()['Sum Dollars'] / self.__sum_buys()['Sum Shares']
-            df['Cost to Acquire Shares'] = (df['Sum Shares'] * price_per_share_buy_avg)
 
-            # Calculate Unrealied Gain/Loss
-            df['Unrealized Gain/Loss'] = df['Current Value of Shares'] - df['Cost to Acquire Shares']
-            df['Unrealized Gain/Loss %'] = 100 * df['Unrealized Gain/Loss'] / df['Current Value of Shares']
-            
-            # Rename Sum Shares and drop Sum Dollars
-            df = df.rename(columns={"Sum Shares": "Shares Held"})
-            df = df.drop(columns=['Sum Dollars'])
+        ### THIS SECTION MAY NOT FUNCTION AS INTENDED
+        ### COMMENTING OUT FOR NOW
+        # # Find average price per share for all buys
+        # # Calculate the cost to acquire our shares
+        # price_per_share_buy_avg = self.__sum_buys()['Sum Dollars'] / self.__sum_buys()['Sum Shares']
+        # df['Cost to Acquire Shares'] = (df['Sum Shares'] * price_per_share_buy_avg)
 
-            # Calculate totals
-            df.loc[len(df.index)] = ['Totals', sum(df['Shares Held']), 'N/A', sum(df['Current Value of Shares']), sum(df['Cost to Acquire Shares']), \
-                                     sum(df['Unrealized Gain/Loss']), (100 * (sum(df['Unrealized Gain/Loss']) / sum(df['Current Value of Shares'])))]
+        # # Calculate Unrealied Gain/Loss
+        # df['Unrealized Gain/Loss'] = df['Current Value of Shares'] - df['Cost to Acquire Shares']
+        # df['Unrealized Gain/Loss %'] = 100 * df['Unrealized Gain/Loss'] / df['Current Value of Shares']
+        
+        # # Calculate totals
+        # df.loc[len(df.index)] = ['Totals', sum(df['Shares Held']), 'N/A', sum(df['Current Value of Shares']), sum(df['Cost to Acquire Shares']), \
+        #                          sum(df['Unrealized Gain/Loss']), (100 * (sum(df['Unrealized Gain/Loss']) / sum(df['Current Value of Shares'])))]
 
-            # Remove any rows with zero shares
-            df = df[df['Shares Held'] != 0]
 
-        except ZeroDivisionError:
-            return 'No positions in the market.'
+        # Rename Sum Shares and drop Sum Dollars
+        df = df.rename(columns={"Sum Shares": "Shares Held"})
+        df = df.drop(columns=['Sum Dollars'])
+
+        # Calculate Totals
+        df.loc[len(df.index)] = ['Totals', sum(df['Shares Held']), 'N/A', sum(df['Current Value of Shares'])]
+
+        # Remove any rows with zero shares
+        df = df[df['Shares Held'] != 0]
 
         return df
 
