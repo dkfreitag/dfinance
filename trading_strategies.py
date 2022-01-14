@@ -45,7 +45,6 @@ def Strategy_SMA_Crossover(self, df, my_port, sma_short, sma_long, share_num, ti
                 # if the short moving average goes above the long moving average
                 # and we are not in the market
                 # buy a share at close price
-                
                 if not self.in_the_market:
                     my_port.buy_stock(ticker, share_num, self.running_rows[-1][3], self.running_rows[-1][0])
                     print(f'\nBuying {share_num} shares of {ticker} for {share_num * self.running_rows[-1][3]}\n')
