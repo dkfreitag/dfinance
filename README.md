@@ -1,6 +1,6 @@
 # David's Finance Module (dfinance) README
 
-The goal of this module is to provide all the functionality necessary for creating an algorithmic trading strategy and backtesting that strategy.
+The goal of this module is to provide all the functionality necessary for creating, backtesting, and executing live algorithmic trading strategies.
 
 Done:
 * Data feed for historical price data
