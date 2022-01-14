@@ -74,8 +74,8 @@ my_back.process_historical_data(historical_df,                      # dataframe 
 
 #### Buy or sell stock
 
-Arguments: ticker, share count, share price
+Arguments: ticker, share count, share price, transaction datetime (as a string)
 
-`my_port.buy_stock('GME', 2, 10)`
+`my_port.buy_stock('GME', 2, 10, '2021-01-01 00:00:00')`
 
-`my_port.sell_stock('GME', 1, 20)`
+`my_port.sell_stock('GME', 1, 20, '2022-01-01 00:12:00')`
