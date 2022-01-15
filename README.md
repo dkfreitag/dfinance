@@ -1,6 +1,6 @@
-# David's Finance Module (dfinance) README
+# David's Finance Package (dfinance) README
 
-The goal of this module is to provide all the functionality necessary for creating, backtesting, and executing live algorithmic trading strategies.
+The goal of this package is to provide all the functionality necessary for creating, backtesting, and executing live algorithmic trading strategies.
 
 Done:
 * Data feed for historical price data
@@ -12,11 +12,16 @@ Done:
 To do:
 * Write a sample live data trading function that operates with API calls to Alpaca instead of using a Porfolio object
 * Build additional data feeds for alternative data
+* Write documentation on htpeter's utils.ledger class
 
 
 ## Import the library
 
 `import dfinance as dfin`
+
+## Import a strategy
+
+`from dfinance.trading_strategies import Strategy_SMA_Crossover`
 
 ---
 
@@ -31,7 +36,7 @@ To do:
 ```
 my_back.process_historical_data(historical_df,                      # dataframe with price data
                                 my_port,                            # portfolio object
-                                my_back.Strategy_SMA_Crossover,     # strategy function name
+                                Strategy_SMA_Crossover.strategy,    # strategy function name
                                 sma_short=10,                       # keyword arg for this strategy
                                 sma_long=15,                        # keyword arg for this strategy
                                 share_num=50,                       # keyword arg for this strategy

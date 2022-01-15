@@ -1,7 +1,7 @@
 import pandas as pd
 from statistics import mean
 
-def Strategy_SMA_Crossover(self, df, my_port, sma_short, sma_long, share_num, ticker):
+def strategy(self, df, my_port, sma_short, sma_long, share_num, ticker):
     """Simple Moving Average Crossover Strategy
     Given as an example of how to write a strategy.
 
