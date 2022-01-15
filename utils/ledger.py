@@ -71,9 +71,6 @@ class Ledger:
         """
         # TODO: make this accurately calculate returns
         """
-        raise NotImplementedError(
-            "This method is inaccurate... comment out Exception to develop/use."
-        )
         bals = self.get_balances(as_of)
         for i in bals.ticker.unique():
             if i not in list(prices_at.keys()):
