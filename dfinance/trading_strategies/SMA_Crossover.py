@@ -1,5 +1,11 @@
 import pandas as pd
-from statistics import mean
+import numpy as np
+#from statistics import mean
+import numpy as np
+
+import talib
+from talib.abstract import *
+
 
 def strategy(self, df, my_port, sma_short, sma_long, share_num, ticker):
     """Simple Moving Average Crossover Strategy
@@ -25,8 +31,13 @@ def strategy(self, df, my_port, sma_short, sma_long, share_num, ticker):
         
         # if we have enough periods to get both short and long moving averages
         if len(self.running_rows) >= sma_long:
-            sma_short_avg = mean(pd.DataFrame(self.running_rows[-1:-(sma_short+1):-1])[3].values)
-            sma_long_avg = mean(pd.DataFrame(self.running_rows[-1:-(sma_long+1):-1])[3].values)
+            # # manual calculation of SMA
+            # sma_short_avg = mean(pd.DataFrame(self.running_rows[-1:-(sma_short+1):-1])[3].values)
+            # sma_long_avg = mean(pd.DataFrame(self.running_rows[-1:-(sma_long+1):-1])[3].values)
+
+            # calculation of SMA using TA-Lib
+            sma_short_avg = SMA(pd.DataFrame(self.running_rows[-1:-(sma_short+1):-1])[3].values, timeperiod=sma_short)[-1]
+            sma_long_avg = SMA(pd.DataFrame(self.running_rows[-1:-(sma_long+1):-1])[3].values, timeperiod=sma_long)[-1]
 
             if sma_short_avg < sma_long_avg:
                 print(f'{self.running_rows[-1][0]} | Short: {sma_short_avg:.02f} | Long: {sma_long_avg:.02f} | Short < Long')
