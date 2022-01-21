@@ -11,21 +11,29 @@ class Backtest:
         self.in_the_market = False
 
 
-    def process_live_data(self, ticker):
+    def process_live_data(self, ticker, sleep_delay, prefill_rows=None):
         """Function to process a live data stream.
+
         Under Construction.
 
         Args:
             ticker (str): ticker to process
+            sleep_delay (int): seconds to wait before retrieving the next row of live data
+            prefill_rows (tuple, optional): tuple of price data rows to prefill before the live data.
+                Data must be in the format defined in yield_yf(). Defaults to None.
         """
+
+        # append the prefill_rows before adding live ticker data
+        if prefill_rows != None:
+            self.running_rows.append(prefill_rows)
+
         while True:
             try:
                 row_iterable = iter(self.__yield_yf(ticker))
                 for row in row_iterable:
                     # DO STUFF HERE
                     print(row)
-                    # ADJUST THE SLEEP TIME AS NEEDED FOR DELAY BETWEEN NOW AND NEXT ROW
-                    time.sleep(3)
+                    time.sleep(sleep_delay)
             except:
                 self.process_live_data(self, ticker)
 
