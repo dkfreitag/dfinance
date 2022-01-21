@@ -142,11 +142,14 @@ class Portfolio:
         """
         return pd.DataFrame(self.__transactions, columns=['Ticker', 'Shares', 'Share Price', 'Dollar Amount', 'Buy/Sell', 'Transaction Datetime'])
     
-    def summary_of_transactions(self):
-        """Get a summary of all transactions.
+    def current_positions(self):
+        """Get a printout of all current positions.
+        This is really only useful if you are paper/live trading in real time,
+        since it retrieves the current price of the equities in your portfolio
+        at the time the function is called.
 
         Returns:
-            dataframe: summary of all transactions
+            dataframe: all current positions
         """
         df = self.__sum_ledger()
 
