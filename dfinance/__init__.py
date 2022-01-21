@@ -2,6 +2,7 @@ import time
 
 import pandas as pd
 import yfinance as yf
+import alpaca_trade_api as tradeapi
 
 class Backtest:
     """Creates a backtest instance.
@@ -11,31 +12,29 @@ class Backtest:
         self.in_the_market = False
 
 
-    def process_live_data(self, ticker, sleep_delay, prefill_rows=None):
-        """Function to process a live data stream.
-
-        Under Construction.
+    def process_live_data(self, prefill_rows, my_alpaca_port, my_strategy, **kwargs):
+        """Function to process live data. Can be used for paper or live trading.
 
         Args:
-            ticker (str): ticker to process
-            sleep_delay (int): seconds to wait before retrieving the next row of live data
-            prefill_rows (tuple, optional): tuple of price data rows to prefill before the live data.
-                Data must be in the format defined in yield_yf(). Defaults to None.
+            prefill_rows (dataframe): dataframe containing historical data
+            my_alpaca_port (AlpacaPortfolio): your Alpaca portfolio object
+            my_strategy (function): function that contains your strategy
         """
 
-        # append the prefill_rows before adding live ticker data
-        if prefill_rows != None:
-            self.running_rows.append(prefill_rows)
+        if not my_alpaca_port.is_market_open:
+            print('Market is closed. No action will be taken.')
+            return
 
-        while True:
-            try:
-                row_iterable = iter(self.__yield_yf(ticker))
-                for row in row_iterable:
-                    # DO STUFF HERE
-                    print(row)
-                    time.sleep(sleep_delay)
-            except:
-                self.process_live_data(self, ticker)
+        # append the prefill_rows before adding live ticker data
+        try:
+            for row in range(len(prefill_rows)):
+                self.running_rows.append(prefill_rows.iloc[row].values)
+        except:
+            print('No prefill or invalid prefill.')
+
+        # call my_strategy
+        my_strategy(self, my_alpaca_port, **kwargs)
+
 
 
     def process_historical_data(self, df, my_port, my_strategy, **kwargs):
@@ -152,9 +151,11 @@ class Portfolio:
     
     def current_positions(self):
         """Get a printout of all current positions.
+
         This is really only useful if you are paper/live trading in real time,
         since it retrieves the current price of the equities in your portfolio
-        at the time the function is called.
+        at the time the function is called. However, since the Portfolio class is
+        used for historical backtesting only, this function is really just for fun.
 
         Returns:
             dataframe: all current positions
@@ -202,10 +203,15 @@ class Portfolio:
     def value_in_market(self):
         """Get the current value of all holdings in the market.
 
+        This is really only useful if you are paper/live trading in real time,
+        since it retrieves the current price of the equities in your portfolio
+        at the time the function is called. However, since the Portfolio class is
+        used for historical backtesting only, this function is really just for fun.
+
         Returns:
             float: sum value of all holdings in the market
         """
-        df = self.summary_of_transactions()
+        df = self.current_positions()
         return df['Current Value of Shares'][-1:].values[0]
 
 #########################
@@ -276,3 +282,78 @@ class Portfolio:
             price_list.append(yf.download(tickers=ticker, period='1d', interval='1m', progress=False).tail(1)['Adj Close'].values[0])
 
         return price_list
+
+
+class AlpacaPortfolio:
+    """Creates an AlpacaPortfolio instance. This class can be used to interact with an Alpaca paper or live porfolio.
+    
+    Attributes:
+        api : access the Alpaca REST api endpoint - the functions in this class exist to abstract these operations
+        equity : portfolio equity
+        last_equity : portfolio equity at previous close
+        cash : current portfolio cash balance
+    """
+    def __init__(self):
+        self.api = tradeapi.REST()
+        self.equity = self.api.get_account().equity
+        self.last_equity = self.api.get_account().last_equity
+        self.cash = self.api.get_account().cash
+        self.is_market_open = self.api.get_clock().is_open
+
+    def buy_stock_bracket_order(self, ticker, share_cnt, profit_pct, stop_pct, limit_pct):
+        """Submit a bracket buy order, which includes a market buy order, a take profit
+        order, and a stop limit order.
+
+        Args:
+            ticker (str): ticker to buy
+            share_cnt (float): number of shares to buy
+            profit_pct (float): percent of original price at which to execute take profit order
+            stop_pct (float): percent of original price at which to trigger stop limit order
+            limit_pct (float): limit price as a percentage of the original price
+
+        Returns:
+            [type]: [description]
+        """
+        symbol = ticker
+        symbol_bars = self.api.get_barset(symbol, 'minute', 1).df.iloc[0]
+        symbol_price = symbol_bars[symbol]['close']
+
+        self.api.submit_order(
+            symbol=symbol,
+            qty=share_cnt,
+            side='buy',
+            type='market',
+            time_in_force='gtc',
+            order_class='bracket',
+            stop_loss={'stop_price': symbol_price * stop_pct,
+                    'limit_price':  symbol_price * limit_pct},
+            take_profit={'limit_price': symbol_price * profit_pct}
+        )
+
+        print('Submitted Order. Check https://app.alpaca.markets/paper/dashboard/overview for status.')
+        return 
+
+    def get_account_status(self):
+        """Get account status.
+
+        Returns:
+            dataframe: returns a dataframe with account balances, etc.
+        """
+        return pd.DataFrame([[self.cash,
+                              self.equity,
+                              self.last_equity,
+                              float(self.last_equity) - float(self.equity),
+                              100 * (float(self.last_equity) - float(self.equity))]],
+                              columns=['Cash', 'Equity', 'Last Equity', 'Equity Change', 'Equity Change %'])
+
+    def current_positions(self):
+        """Get current stock positions.
+
+        Returns:
+            dataframe: returns a dataframe with a summary of current stock positions.
+        """
+        pos_list = []
+        for pos in self.api.list_positions():
+            pos_list.append([pos.symbol, pos.qty, pos.cost_basis, pos.current_price, pos.unrealized_pl, f'{100 * float(pos.unrealized_plpc):.02f}'])
+
+        return pd.DataFrame(pos_list, columns=['Ticker', 'Shares Held', 'Cost Basis', 'Current Price', 'Unrealized Gain/Loss', 'Unrealized Gain/Loss %'])

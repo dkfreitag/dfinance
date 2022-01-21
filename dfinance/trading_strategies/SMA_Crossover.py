@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 #from statistics import mean
-import numpy as np
 
 import talib
 from talib.abstract import *
@@ -9,6 +8,7 @@ from talib.abstract import *
 
 def strategy(self, df, my_port, sma_short, sma_long, share_num, ticker):
     """Simple Moving Average Crossover Strategy
+    Only configured for backtesting, not with paper/live trading.
     Given as an example of how to write a strategy.
 
     Args:
