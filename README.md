@@ -8,9 +8,14 @@ Done:
 * Porfolio class to provide buy/sell helper functions and track transactions, cash account value, and current market positions
 * Backtest class to provide the ability to backtest a trading strategy on historical data
 * Sample historical data trading function (strategy) that operates on a Porfolio object
+* Backtest class augmented to provide the ability to process live data and prefill historical data before live data
+* Sample live (paper) data trading function (strategy) that operates with API calls to Alpaca instead of using a Porfolio object
 
 To do:
-* Write a sample live data trading function that operates with API calls to Alpaca instead of using a Porfolio object
+* Train model for predicting price movement
+* Incorporate model predictions as part of a live/paper trading strategy
+    * Historical data backtest of this strategy
+    * Live/paper trading using this strategy
 * Build additional data feeds for alternative data
 * Write documentation on htpeter's utils.ledger class
 
