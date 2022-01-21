@@ -3,3 +3,6 @@ yfinance==0.1.69
 TA-Lib==0.4.24
 alpaca-trade-api==1.4.3
 python-dotenv==0.19.2
+lightgbm==3.3.2
+matplotlib==3.5.1
+scikit-learn==1.0.2
