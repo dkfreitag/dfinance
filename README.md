@@ -12,12 +12,13 @@ Done:
 * Sample live (paper) data trading function (strategy) that operates with API calls to Alpaca instead of using a Porfolio object
 
 To do:
+* Write documentation on `AlpacaPortfolio` class
 * Train model for predicting price movement
 * Incorporate model predictions as part of a live/paper trading strategy
     * Historical data backtest of this strategy
     * Live/paper trading using this strategy
 * Build additional data feeds for alternative data
-* Write documentation on htpeter's utils.ledger class
+* Write documentation on htpeter's `utils.Ledger` class
 
 
 ## Import the library
