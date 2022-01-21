@@ -8,32 +8,37 @@ def strategy(self, my_alpaca_port, ticker, share_cnt, profit_pct, stop_pct, limi
         try:
             row_iterable = iter(self.yield_yf(ticker))
             for row in row_iterable:
-                self.running_rows.append(row)
-
-                # sleep for an hour before getting new data
-                #time.sleep(360)
+                
+                # For every iteration, save the prefill data in data_rows, then attach the newly
+                # fetched row. This way, we only have all historical data but the most recent row
+                # is always the newest data point. Must use copy() to ensure running_rows retains
+                # original values.
+                data_rows = self.running_rows.copy()
+                data_rows.append(row)
 
                 # CHANGE CODE HERE AND BELOW
 
-                # self.running_rows[-1] is the most recent row in time
-                # self.running_rows[-2] is the row before that one in time
-                # self.running_rows[0] is the first point in time
+                # data_rows[-1] is the most recent row in time
+                # data_rows[-2] is the row before that one in time
+                # data_rows[0] is the first point in time
                 
-                
-                # TO DO HERE: feed the model the data from running_rows
+                # TO DO HERE: feed the model the data from data_rows
                 # Get the prediction from the model
-                # If the prediction from the model is 1, then proceed with the following:
+                # If the prediction from the model is 1, then proceed with purchasing a stock
+                
+                model_pred = 1
 
-
-                # If we aren't in the market (i.e. list_positions returns []), submit our bracket order
-                if my_alpaca_port.api.list_positions() == []:
+                # If we aren't in the market (i.e. list_positions() == []),
+                # and if our model prediction = 1, submit our bracket order
+                if my_alpaca_port.api.list_positions() == [] and model_pred == 1:
                     my_alpaca_port.buy_stock_bracket_order(ticker=ticker,
                                                            share_cnt=share_cnt,
                                                            profit_pct=profit_pct,
                                                            stop_pct=stop_pct,
                                                            limit_pct=limit_pct)
-                else:
-                    return
+                
+                # sleep for a time before iterating on the next row
+                time.sleep(600)
 
         except:
-            self.strategy(my_alpaca_port, ticker)
+            self.strategy(my_alpaca_port, ticker, share_cnt, profit_pct, stop_pct, limit_pct)

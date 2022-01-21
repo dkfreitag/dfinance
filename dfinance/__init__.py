@@ -25,10 +25,20 @@ class Backtest:
             print('Market is closed. No action will be taken.')
             return
 
-        # append the prefill_rows before adding live ticker data
         try:
-            for row in range(len(prefill_rows)):
-                self.running_rows.append(prefill_rows.iloc[row].values)
+            # drop the last row because it will include today's data
+            prefill_rows.drop(prefill_rows.tail(1).index,inplace=True)
+
+            # append the prefill_rows to running_rows before adding live ticker data
+            # as part of the strategy
+            for row in prefill_rows.iterrows():
+                self.running_rows.append((row[0],
+                                          row[1].values[0],  # open
+                                          row[1].values[1],  # high
+                                          row[1].values[2],  # low
+                                          row[1].values[3],  # close
+                                          row[1].values[4],  # adj close
+                                          row[1].values[5])) # volume
         except:
             print('No prefill or invalid prefill.')
 
@@ -65,7 +75,8 @@ class Backtest:
                     row[1].values[1], # high
                     row[1].values[2], # low
                     row[1].values[3], # close
-                    row[1].values[4]) # volume
+                    row[1].values[4], # adj close
+                    row[1].values[5]) # volume
 
 
     def yield_yf(self, ticker):
@@ -79,13 +90,14 @@ class Backtest:
             tuple: row of price data in a tuple
         """
         data = yf.download(tickers=ticker, period='1d', interval='1m', progress=False).tail(1)
-        yield (data.index.values[0],
-                data.values[0][0], # open
-                data.values[0][1], # high
-                data.values[0][2], # low
-                data.values[0][3], # close
-                data.values[0][4], # adj close
-                data.values[0][5]) # volume
+        for row in data.iterrows():
+            yield (row[0],
+                    row[1].values[0], # open
+                    row[1].values[1], # high
+                    row[1].values[2], # low
+                    row[1].values[3], # close
+                    row[1].values[4], # adj close
+                    row[1].values[5]) # volume
 
 
 
@@ -295,6 +307,14 @@ class AlpacaPortfolio:
     """
     def __init__(self):
         self.api = tradeapi.REST()
+        self.equity = self.api.get_account().equity
+        self.last_equity = self.api.get_account().last_equity
+        self.cash = self.api.get_account().cash
+        self.is_market_open = self.api.get_clock().is_open
+
+    def refresh(self):
+        """Refreshes the values in AlpacaPortfolio attributes.
+        """
         self.equity = self.api.get_account().equity
         self.last_equity = self.api.get_account().last_equity
         self.cash = self.api.get_account().cash
