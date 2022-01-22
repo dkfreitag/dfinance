@@ -22,10 +22,26 @@ def strategy(self, my_alpaca_port, ticker, share_cnt, profit_pct, stop_pct, limi
                 # data_rows[-2] is the row before that one in time
                 # data_rows[0] is the first point in time
                 
-                # TO DO HERE: feed the model the data from data_rows
-                # Get the prediction from the model
-                # If the prediction from the model is 1, then proceed with purchasing a stock
+
+                #####
+                ##### Commenting out the model strategy for now
+                ##### Current model is trained on RXMD, which cannot be purchased through Alpaca
+                #####
+
+                # # load the model
+                # with open(pkl_filename, 'rb') as file:  
+                #     model = pickle.load(file)
+
+                # # prepare the data in the format needed by the model
+                # temp_row = pd.DataFrame([data_rows[-1]], columns=['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+                # temp_row.index = temp_row['Date']
+                # temp_row.drop(columns=['Date'], inplace=True)
+
+                # # get a prediction based on the row data
+                # model_pred = model.predict(temp_row)[0]
                 
+
+
                 model_pred = 1
 
                 # If we aren't in the market (i.e. list_positions() == []),
