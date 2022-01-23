@@ -1,29 +1,50 @@
 import pandas as pd
-import time
+import numpy as np
 import pickle
 
+import talib
+from talib.abstract import *
+
 def strategy(self, df, my_port, ticker, share_cnt, profit_pct, stop_pct, limit_pct, pkl_filename):
+    # initialize blank running_df
+    running_df = pd.DataFrame()
+
     row_iterable = iter(self.yield_row(df))
     for row in row_iterable:
         self.running_rows.append(row)
 
-        # CHANGE CODE HERE AND BELOW
+        # turn self.running_rows into a dataframe
+        running_df = pd.DataFrame(self.running_rows, columns=['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
+        running_df.index = running_df['Date']
+        running_df.drop(columns=['Date'], inplace=True)
 
-        # self.running_rows[-1] is the most recent row in time
-        # self.running_rows[-2] is the row before that one in time
-        # self.running_rows[0] is the first point in time
-        
+        ###########################
+        ##### ADDING FEATURES #####
+        ###########################
+
+        # add column names
+        running_df['sma_10'] = np.NaN
+        running_df['sma_20'] = np.NaN
+        running_df['sma_30'] = np.NaN
+
+        # calculate SMA for various time periods
+        # if we have at least 10 rows in running_df, add the 10 day SMA
+        # repeat same process for sma_20 and sma_30
+        if len(running_df) > 10:
+            running_df.iloc[-1:-2:-1, 6] = SMA(running_df.iloc[-1:-11:-1]['Close'].values, timeperiod=10)[-1]
+
+        if len(running_df) > 20:
+            running_df.iloc[-1:-2:-1, 7] = SMA(running_df.iloc[-1:-21:-1]['Close'].values, timeperiod=20)[-1]
+
+        if len(running_df) > 30:
+            running_df.iloc[-1:-2:-1, 8] = SMA(running_df.iloc[-1:-31:-1]['Close'].values, timeperiod=30)[-1]
+
         # load the model
         with open(pkl_filename, 'rb') as file:  
             model = pickle.load(file)
 
-        # prepare the data in the format needed by the model
-        temp_row = pd.DataFrame([self.running_rows[-1]], columns=['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
-        temp_row.index = temp_row['Date']
-        temp_row.drop(columns=['Date'], inplace=True)
-
-        # get a prediction based on the row data
-        model_pred = model.predict(temp_row)[0]
+        # get a prediction based on the most recent row in running_df
+        model_pred = model.predict(running_df.iloc[-1:-2:-1])[0]
 
         # initialize buy_price
         buy_price = 0

@@ -1,5 +1,3 @@
-import time
-
 import pandas as pd
 import yfinance as yf
 import alpaca_trade_api as tradeapi
