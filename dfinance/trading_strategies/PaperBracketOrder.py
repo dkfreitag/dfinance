@@ -37,6 +37,10 @@ def strategy(self, my_alpaca_port, ticker, share_cnt, profit_pct, stop_pct, limi
                 running_df['sma_10'] = np.NaN
                 running_df['sma_20'] = np.NaN
                 running_df['sma_30'] = np.NaN
+                running_df['macd'] = np.NaN
+                running_df['macdsignal'] = np.NaN
+                running_df['macdhist'] = np.NaN
+                running_df['rsi'] = np.NaN
 
                 # calculate SMA for various time periods
                 # if we have at least 10 rows in running_df, add the 10 day SMA
@@ -50,6 +54,15 @@ def strategy(self, my_alpaca_port, ticker, share_cnt, profit_pct, stop_pct, limi
                 if len(running_df) > 30:
                     running_df.iloc[-1:-2:-1, 8] = SMA(running_df.iloc[-1:-31:-1]['Close'].values, timeperiod=30)[-1]
 
+                if len(running_df) > 33:
+                    macd, macdsignal, macdhist = MACD(running_df['Close'].values, fastperiod=12, slowperiod=26, signalperiod=9)
+                    running_df.iloc[-1:-2:-1, 9] = macd[-1]
+                    running_df.iloc[-1:-2:-1, 10] = macdsignal[-1]
+                    running_df.iloc[-1:-2:-1, 11] = macdhist[-1]
+                
+                if len(running_df) > 14:
+                    real = RSI(running_df['Close'].values, timeperiod=14)
+                    running_df.iloc[-1:-2:-1, 12] = real[-1]
 
 
                 # load the model
