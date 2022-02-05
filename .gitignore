@@ -3,3 +3,5 @@ __pycache__/
 dfinance_proj_env/
 .DS_Store
 .env
+BT_EMA_Crossover.py
+RH_EMA_Crossover.py

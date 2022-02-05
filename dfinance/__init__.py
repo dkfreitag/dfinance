@@ -44,6 +44,35 @@ class Backtest:
         my_strategy(self, my_alpaca_port, **kwargs)
 
 
+    def process_live_data_rh(self, prefill_rows, my_rh_port, my_strategy, **kwargs):
+        """Function to process live data.
+
+        Args:
+            prefill_rows (dataframe): dataframe containing historical data
+            my_rh_port (robin_stocks.robinhood): your Robinhood portfolio object
+            my_strategy (function): function that contains your strategy
+        """
+
+        try:
+            # drop the last row because it will include today's data
+            prefill_rows.drop(prefill_rows.tail(1).index,inplace=True)
+
+            # append the prefill_rows to running_rows before adding live ticker data
+            # as part of the strategy
+            for row in prefill_rows.iterrows():
+                self.running_rows.append((row[0],
+                                          row[1].values[0],  # open
+                                          row[1].values[1],  # high
+                                          row[1].values[2],  # low
+                                          row[1].values[3],  # close
+                                          row[1].values[4],  # adj close
+                                          row[1].values[5])) # volume
+        except:
+            print('No prefill or invalid prefill.')
+
+        # call my_strategy
+        my_strategy(self, my_rh_port, **kwargs)
+
 
     def process_historical_data(self, df, my_port, my_strategy, **kwargs):
         """Function to process a historical data stream.
