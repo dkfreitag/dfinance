@@ -10,13 +10,15 @@ Done:
 * Sample historical data trading function (strategy) that operates on a Porfolio object
 * Backtest class augmented to provide the ability to process live data and prefill historical data before live data
 * Sample live (paper) data trading function (strategy) that operates with API calls to Alpaca instead of using a Porfolio object
-
-To do:
-* Write documentation on `AlpacaPortfolio` class
 * Train model for predicting price movement
 * Incorporate model predictions as part of a live/paper trading strategy
     * Historical data backtest of this strategy
     * Live/paper trading using this strategy
+
+
+To do:
+* Write documentation on RobinHood functionality
+* Write documentation on `AlpacaPortfolio` class
 * Build additional data feeds for alternative data
 * Write documentation on htpeter's `utils.Ledger` class
 
