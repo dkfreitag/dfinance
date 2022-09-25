@@ -5,3 +5,4 @@ dfinance_proj_env/
 .env
 BT_EMA_Crossover.py
 RH_EMA_Crossover.py
+restart_reddit_stream.sh
