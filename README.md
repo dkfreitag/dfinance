@@ -1,5 +1,7 @@
 # David's Finance Package (dfinance) README
 
+Update 10/27
+
 The goal of this package is to provide all the functionality necessary for creating, backtesting, and executing live algorithmic trading strategies.
 
 Done:
